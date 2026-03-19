@@ -19,6 +19,16 @@ const matchSchema = new Schema(
 
     date: {
       type: Date,
+      default: null,
+    },
+    startTime: {
+      type: Date,
+      default: null,
+    },
+
+    endTime: {
+      type: Date,
+      default: null, //required will not called since default is here
     },
 
     status: {
@@ -37,6 +47,7 @@ const matchSchema = new Schema(
 
     subStatus: {
       type: String,
+      default: null,
     },
 
     score_home: {

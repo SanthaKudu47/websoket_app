@@ -4,8 +4,13 @@ import dbConnect from "./db/mongodb.js";
 import Match from "./db/match.model.js";
 import mongoose from "mongoose";
 import TimelineEvent from "./db/timeline.model.js";
+import matchesRouter from "./routes/matches.router.js";
+import { MatchValidationSchema } from "./validation/match.js";
 
 const app = express();
+
+//enable query parser
+app.set("query parser", "simple");
 
 //middleware on app level for all paths
 app.use(express.json());
@@ -15,7 +20,9 @@ app.get("/", function (req, res) {
   res.send("Hello from server");
 });
 
-// await dbConnect();
+app.use("/matches", matchesRouter);
+
+await dbConnect();
 // async function createMatch() {
 //   try {
 //     const match = {
