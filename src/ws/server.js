@@ -1,0 +1,36 @@
+import { WebSocket, WebSocketServer } from "ws";
+
+function sendJson(socket, payload) {
+  if (socket.readyState != WebSocket.OPEN) return;
+  socket.send(JSON.stringify(payload));
+}
+
+function broadcast(wss, payload) {
+  for (const client of wss.clients) {
+    if (client.readyState === WebSocket.OPEN) {
+      if (client.readyState != WebSocket.OPEN) return;
+      client.send(JSON.stringify(payload));
+    }
+  }
+}
+
+export function attachWebSocketServer(server) {
+  const wss = new WebSocketServer({
+    server: server,
+    path: "/ws",
+    maxPayload: 1024 * 1024, //1mb
+  });
+
+  wss.on("connection", function (ws, req) {
+    sendJson(ws, { type: "welcome" });
+    ws.on("error", function (err) {
+      console.log("Error WS", err);
+    });
+  });
+
+  function broadcastMatchCreated(match) {
+    broadcast(wss, { type: "match_created", data: match });
+  }
+
+  return { broadcastMatchCreated };
+}

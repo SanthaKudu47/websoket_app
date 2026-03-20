@@ -87,13 +87,19 @@ matchesRouter.post("/", async function (req, res) {
     return;
   }
   try {
-    const newMatchDoc = await Match.create(validated.data);
+    const created = await Match.create(validated.data);
+    const newMatchDoc = created.toObject();
+    delete newMatchDoc["__v"];
+    if (res.app.locals.broadcastMatchCreated) {
+      res.app.locals.broadcastMatchCreated(newMatchDoc);
+    }
     sendResponse(res, 201, "Match created", newMatchDoc);
   } catch (error) {
     console.log("Failed to create Match");
     if (error instanceof MongooseError) {
       sendResponse(res, 500, error.message);
     } else {
+      console.log(error);
       sendResponse(res, 500, "Failed to create Match.Server Error");
     }
   }
