@@ -5,6 +5,7 @@ import { sendResponse } from "../utils/response.js";
 import { formatZodError } from "../utils/common.js";
 import mongoose, { MongooseError } from "mongoose";
 import { PaginationQuerySchema } from "../validation/queryParams.js";
+import { raiseMatchCreateEvent } from "../utils/matchEvents.js";
 
 const matchesRouter = Router();
 
@@ -90,9 +91,10 @@ matchesRouter.post("/", async function (req, res) {
     const created = await Match.create(validated.data);
     const newMatchDoc = created.toObject();
     delete newMatchDoc["__v"];
-    if (res.app.locals.broadcastMatchCreated) {
-      res.app.locals.broadcastMatchCreated(newMatchDoc);
-    }
+    // if (res.app.locals.broadcastMatchCreated) {
+    //   res.app.locals.broadcastMatchCreated(newMatchDoc);
+    // }
+    raiseMatchCreateEvent(newMatchDoc);
     sendResponse(res, 201, "Match created", newMatchDoc);
   } catch (error) {
     console.log("Failed to create Match");
