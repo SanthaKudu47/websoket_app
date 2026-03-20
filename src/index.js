@@ -1,13 +1,15 @@
 import express from "express";
 import "dotenv/config";
 import dbConnect from "./db/mongodb.js";
-import Match from "./db/match.model.js";
-import mongoose from "mongoose";
-import TimelineEvent from "./db/timeline.model.js";
 import matchesRouter from "./routes/matches.router.js";
-import { MatchValidationSchema } from "./validation/match.js";
+import http from "http";
+import { attachWebSocketServer } from "./ws/server.js";
+
+const PORT = Number(process.env.HTTP_PORT) || 8000;
+const HOST = process.env.HOST || "0.0.0.0";
 
 const app = express();
+const server = http.createServer(app);
 
 //enable query parser
 app.set("query parser", "simple");
@@ -22,43 +24,15 @@ app.get("/", function (req, res) {
 
 app.use("/matches", matchesRouter);
 
+const { broadcastMatchCreated } = attachWebSocketServer(server);
+app.locals.broadcastMatchCreated = broadcastMatchCreated;
+
 await dbConnect();
-// async function createMatch() {
-//   try {
-//     const match = {
-//       sport: "football",
-//       homeTeam: "Arsenal",
-//       awayTeam: "Chelsea",
-//       date: new Date("2025-03-19T18:30:00Z"),
-//       status: "live",
-//       subStatus: "first_half",
-//       score_home: 1,
-//       score_away: 0,
-//       tournament: "Premier League",
-//       meta: JSON.stringify({ info: "Round 28 - Emirates Stadium" }),
-//     };
-//     const matchDoc = new Match(match);
-//     const saved = await matchDoc.save();
-//     const event = {
-//       matchId: saved._id,
-//       time: new Date("2025-03-19T18:30:00Z"),
-//       description: "Match kicked off",
-//       type: "match",
-//       meta: JSON.stringify({
-//         period: "first_half",
-//       }),
-//     };
-//     const ev = new TimelineEvent(event);
-//     await ev.save();
-//   } catch (error) {
-//     console.log("Failed to create");
-//     console.log(error);
-//   }
-// }
 
-// await createMatch();
+server.listen(PORT, HOST, function () {
+  const baseUrl =
+    HOST === "0.0.0.0" ? `http://localhost:${PORT}` : `http://${HOST}:${PORT}`;
 
-app.listen(process.env.HTTP_PORT || 8000, function () {
-  const port = process.env.HTTP_PORT || 8000;
-  console.log("Listening on port", port);
+  console.log(`Service is Running on ${baseUrl}`);
+  console.log(`WebSocket is running on ${baseUrl.replace("http", "ws")}/ws`);
 });
