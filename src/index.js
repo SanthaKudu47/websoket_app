@@ -5,7 +5,7 @@ import matchesRouter from "./routes/matches.router.js";
 import http from "http";
 import { attachWebSocketServer } from "./ws/server.js";
 import { registerBroadCastFunc } from "./utils/matchEvents.js";
-import { securityMiddleware } from "./arcjet.js";
+import { securityMiddleware, wsArcjet } from "./arcjet.js";
 
 const PORT = Number(process.env.HTTP_PORT) || 8000;
 const HOST = process.env.HOST || "0.0.0.0";
@@ -31,6 +31,29 @@ const { broadcastMatchCreated } = attachWebSocketServer(server);
 registerBroadCastFunc(broadcastMatchCreated);
 
 await dbConnect();
+
+server.on("upgrade", async function (req, socket, head) {
+  //apply arcjet
+  if (wsArcjet) {
+    try {
+      const decision = await wsArcjet.protect(req);
+      if (decision.isDenied()) {
+        if (decision.reason.isRateLimit()) {
+          socket.write("HTTP/1.1 429 Too Many Requests\r\n\r\n");
+        } else {
+          socket.write("HTTP/1.1 403 Forbidden\r\n\r\n");
+        }
+
+        socket.destroy();
+        return;
+      }
+    } catch (error) {
+      console.log("WS upgrade protection  error");
+      ws.destroy();
+      return;
+    }
+  }
+});
 
 server.listen(PORT, HOST, function () {
   const baseUrl =

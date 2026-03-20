@@ -1,7 +1,6 @@
 import { WebSocket, WebSocketServer } from "ws";
 import { wsArcjet } from "../arcjet.js";
 
-
 function sendJson(socket, payload) {
   if (socket.readyState != WebSocket.OPEN) return;
   socket.send(JSON.stringify(payload));
@@ -45,25 +44,6 @@ export function attachWebSocketServer(server) {
     ws.on("close", () => {
       ws.isAlive = false;
     });
-
-    //apply arcjet
-    if (wsArcjet) {
-      try {
-        const decision = await wsArcjet.protect(req);
-        if (decision.isDenied()) {
-          const code = decision.reason.isRateLimit() ? 1013 : 1008;
-          const reason = decision.reason.isRateLimit()
-            ? "Rate limit Exceeded"
-            : "Access Denied";
-          ws.close(code, reason);
-          return;
-        }
-      } catch (error) {
-        console.log("WS connection error");
-        ws.close(1011, "Server security error");
-        return;
-      }
-    }
 
     ws.isAlive = true;
     sendJson(ws, { type: "welcome" });
