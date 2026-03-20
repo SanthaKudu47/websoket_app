@@ -5,6 +5,7 @@ import matchesRouter from "./routes/matches.router.js";
 import http from "http";
 import { attachWebSocketServer } from "./ws/server.js";
 import { registerBroadCastFunc } from "./utils/matchEvents.js";
+import { securityMiddleware } from "./arcjet.js";
 
 const PORT = Number(process.env.HTTP_PORT) || 8000;
 const HOST = process.env.HOST || "0.0.0.0";
@@ -17,6 +18,7 @@ app.set("query parser", "simple");
 
 //middleware on app level for all paths
 app.use(express.json());
+app.use(securityMiddleware());
 
 //root
 app.get("/", function (req, res) {
