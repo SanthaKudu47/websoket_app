@@ -4,6 +4,7 @@ import dbConnect from "./db/mongodb.js";
 import matchesRouter from "./routes/matches.router.js";
 import http from "http";
 import { attachWebSocketServer } from "./ws/server.js";
+import { registerBroadCastFunc } from "./utils/matchEvents.js";
 
 const PORT = Number(process.env.HTTP_PORT) || 8000;
 const HOST = process.env.HOST || "0.0.0.0";
@@ -25,7 +26,7 @@ app.get("/", function (req, res) {
 app.use("/matches", matchesRouter);
 
 const { broadcastMatchCreated } = attachWebSocketServer(server);
-app.locals.broadcastMatchCreated = broadcastMatchCreated;
+registerBroadCastFunc(broadcastMatchCreated);
 
 await dbConnect();
 
