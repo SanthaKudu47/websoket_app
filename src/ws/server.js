@@ -1,4 +1,5 @@
 import { WebSocket, WebSocketServer } from "ws";
+import { wsArcjet } from "../arcjet.js";
 
 function sendJson(socket, payload) {
   if (socket.readyState != WebSocket.OPEN) return;
@@ -30,16 +31,22 @@ export function attachWebSocketServer(server) {
     maxPayload: 1024 * 1024, //1mb
   });
 
-  wss.on("connection", function (ws, req) {
-    sendJson(ws, { type: "welcome" });
+  wss.on("connection", async function (ws, req) {
+    //handlers
     ws.on("error", function (err) {
       console.log("Error WS", err);
     });
 
-    ws.isAlive = true;
     ws.on("pong", function () {
       ws.isAlive = true;
     });
+
+    ws.on("close", () => {
+      ws.isAlive = false;
+    });
+
+    ws.isAlive = true;
+    sendJson(ws, { type: "welcome" });
   });
 
   const interval = setInterval(checkIsAlive, 30000, wss);
