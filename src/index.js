@@ -6,6 +6,8 @@ import http from "http";
 import { attachWebSocketServer } from "./ws/server.js";
 import { registerBroadCastFunc } from "./utils/matchEvents.js";
 import { securityMiddleware, wsArcjet } from "./arcjet.js";
+import timeLineRouter from "./routes/timeLine.router.js";
+import timeLineBaseRouter from "./routes/timeLineBase.router.js";
 
 const PORT = Number(process.env.HTTP_PORT) || 8000;
 const HOST = process.env.HOST || "0.0.0.0";
@@ -26,6 +28,8 @@ app.get("/", function (req, res) {
 });
 
 app.use("/matches", matchesRouter);
+app.use("/matches/:id/timeline-events", timeLineRouter);
+app.use("/timeline-events", timeLineBaseRouter);
 
 const { broadcastMatchCreated } = attachWebSocketServer(server);
 registerBroadCastFunc(broadcastMatchCreated);

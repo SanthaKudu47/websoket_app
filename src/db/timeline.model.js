@@ -14,7 +14,7 @@ const timelineEventSchema = new Schema({
     type: String,
     enum: ["player", "match", "system"],
   },
-  meta: {},
+  meta: { type: String, default: null },
 });
 
 timelineEventSchema.index({ matchId: 1, time: 1 }); // ascending
