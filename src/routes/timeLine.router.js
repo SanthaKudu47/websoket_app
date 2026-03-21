@@ -5,6 +5,7 @@ import { timelineEventSchema } from "../validation/timeline.js";
 import TimelineEvent from "../db/timeline.model.js";
 import mongoose, { MongooseError } from "mongoose";
 import { PaginationQuerySchema } from "../validation/queryParams.js";
+import { raiseMatchUpdateEvent } from "../utils/matchEvents.js";
 
 const timeLineRouter = Router({ mergeParams: true });
 
@@ -99,6 +100,7 @@ timeLineRouter.post("/", async function (req, res) {
     const timeLineEvent = created.toObject();
     delete timeLineEvent["__v"];
     sendResponse(res, 201, null, timeLineEvent);
+    raiseMatchUpdateEvent(match._id.toString(), timeLineEvent);
   } catch (error) {
     console.log("Failed to create Timeline");
     return sendResponse(
