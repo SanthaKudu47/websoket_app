@@ -67,11 +67,36 @@ const matchSchema = new Schema(
       },
     },
 
+    // Cricket fields
+    wickets_home: {
+      type: Number,
+      default: 0,
+      min: [0, "Home wickets cannot be negative"],
+    },
+
+    wickets_away: {
+      type: Number,
+      default: 0,
+      min: [0, "Away wickets cannot be negative"],
+    },
+
+    overs_home: {
+      type: Number,
+      default: 0,
+      min: [0, "Home overs cannot be negative"],
+    },
+
+    overs_away: {
+      type: Number,
+      default: 0,
+      min: [0, "Away overs cannot be negative"],
+    },
+
     tournament: {
       type: String,
     },
 
-    meta: {
+    venue: {
       type: String,
     },
   },

@@ -12,7 +12,7 @@ const timelineEventSchema = new Schema({
   },
   type: {
     type: String,
-    enum: ["player", "match", "system"],
+    enum: ["score", "action", "status"],
   },
   meta: { type: String, default: null },
 });
@@ -20,7 +20,6 @@ const timelineEventSchema = new Schema({
 timelineEventSchema.index({ matchId: 1, time: 1 }); // ascending
 
 //create a model
-
 const TimelineEvent =
   mongoose.models.Match || mongoose.model("timelineevent", timelineEventSchema);
 export default TimelineEvent;
