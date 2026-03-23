@@ -7,23 +7,17 @@ const metaSchema = z.object({
         ? "sport is required"
         : "sport must be a string",
   }),
-
-  event: z.string({
-    error: (issue) =>
-      issue.input === undefined
-        ? "event is required"
-        : "event must be a string",
+  event: z.enum(["score", "action", "status"], {
+    error: () => "Invalid event type",
   }),
-
-  primary: z.string({
+  type: z.string({
     error: (issue) =>
-      issue.input === undefined
-        ? "primary is required"
-        : "primary must be a string",
+      issue.input === undefined ? "type is required" : "type must be a string",
   }),
-
-  secondary: z.string().nullable().optional(),
   team: z.string().nullable().optional(),
+  primary: z.string().nullable().optional(),
+  secondary: z.string().nullable().optional(),
+  value: z.int().positive().nullable().optional(),
 });
 
 export const timelineEventSchema = z.object({
@@ -43,7 +37,7 @@ export const timelineEventSchema = z.object({
     })
     .min(1, "Description cannot be empty"),
 
-  type: z.enum(["player", "match", "system"], {
+  event: z.enum(["score", "action", "status"], {
     error: () => "Invalid event type",
   }),
 
